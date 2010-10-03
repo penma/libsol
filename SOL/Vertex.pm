@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.010;
 
+use SOL::Coordinates;
+
 sub new {
 	my ($class, $x, $y, $z) = @_;
 	bless([ $x, $y, $z], $class);
@@ -12,19 +14,13 @@ sub new {
 sub from_sol {
 	my ($class, $sol) = @_;
 
-	my ($nx, $ny, $nz) = $sol->get_float(3);
-
-	$class->new($nx, -$nz, $ny);
+	$class->new(SOL::Coordinates::neverball_to_radiant($sol->get_float(3)));
 }
 
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	$sol->put_float(
-		 $self->[0],
-		 $self->[2],
-		-$self->[1],
-	);
+	$sol->put_float(SOL::Coordinates::radiant_to_neverball(@{$self}));
 }
 
 1;
