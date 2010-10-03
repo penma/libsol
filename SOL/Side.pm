@@ -16,7 +16,7 @@ sub from_sol {
 
 	my @n = $sol->get_float(3);
 	my $d = $sol->get_float(1);
-	$class->new(normal => [SOL::Coordinates::neverball_to_radiant(@n), distance => $d);
+	$class->new(normal => [SOL::Coordinates::neverball_to_radiant(@n)], distance => $d);
 }
 
 sub to_sol {
