@@ -14,7 +14,7 @@ sub resolve {
 	# is it a direct or an indirect index?
 	if (ref($self->{index}) eq "ARRAY") {
 		# indirect index - list of indices stored in index list
-		[ map { $sol->{$self->{type}}->[$_] } @{$sol->{_index}}[@{$self->{index}}] ];
+		[ map { $sol->{$self->{type}}->[$_] } @{$sol->{index}}[@{$self->{index}}] ];
 	} elsif (ref($self->{index}) eq "") {
 		# direct index
 		$sol->{$self->{type}}->[$self->{index}];

@@ -1,4 +1,4 @@
-package SOL::Geometry;
+package SOL::Lump;
 
 use strict;
 use warnings;
@@ -31,7 +31,7 @@ sub from_sol {
 	my ($flags, $v0, $vc, $e0, $ec, $g0, $gc, $s0, $sc) = $sol->get_index(9);
 
 	$class->new(
-		flags      => SOL::Flags::decode($fl, \%lump_flags),
+		flags      => SOL::Flags::decode($flags, \%lump_flags),
 		vertices   => SOL::Unresolved->new("vertex"  , [ $v0 .. ($v0 + $vc - 1) ]),
 		edges      => SOL::Unresolved->new("edge"    , [ $e0 .. ($e0 + $ec - 1) ]),
 		geometries => SOL::Unresolved->new("geometry", [ $g0 .. ($g0 + $gc - 1) ]),
