@@ -13,10 +13,8 @@ sub new {
 		position      => $args{position},
 		radius        => $args{radius},
 		path          => $args{path},
-		timer_default => $args{timer_default},
-		timer_current => $args{timer_current},
-		state_default => $args{state_default},
-		state_current => $args{state_current},
+		timer         => $args{timer},
+		state         => $args{state},
 		invisible     => $args{invisible} // 0,
 	}, $class);
 }
@@ -34,10 +32,8 @@ sub from_sol {
 		position      => [ SOL::Coordinates::neverball_to_radiant(@p) ],
 		radius        => $r,
 		path          => SOL::Unresolved->new("path", $pi),
-		timer_default => $t0,
-		timer_current => $t,
-		state_default => $f0,
-		state_current => $f,
+		timer         => $t0,
+		state         => $f0,
 		invisible     => $invis,
 	);
 }
