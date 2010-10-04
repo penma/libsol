@@ -110,6 +110,9 @@ sub load {
 		$_;
 	} ALL, $self;
 
+	# delete all superfluous lists (all these elements are referenced through
+	# a s_body)
+	delete($self->{material});
 	delete($self->{vertex});
 	delete($self->{edge});
 	delete($self->{side});
