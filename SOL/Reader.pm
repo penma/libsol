@@ -121,6 +121,11 @@ sub load {
 	delete($self->{node});
 	delete($self->{index});
 
+	# flatten the BSP structure
+	foreach my $body (@{$self->{body}}) {
+		$body->unwrap();
+	}
+
 	$self;
 }
 
