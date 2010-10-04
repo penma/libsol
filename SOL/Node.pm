@@ -26,7 +26,7 @@ sub from_sol {
 		side   => SOL::Unresolved->new("side", $si),
 		node_i => SOL::Unresolved->new("node", $ni),
 		node_j => SOL::Unresolved->new("node", $nj),
-		lumps  => SOL::Unresolved->new("lump", [ $l0 .. ($l0 + $lc - 1) ]),
+		lumps  => [ map SOL::Unresolved->new("lump", $_), ($l0 .. ($l0 + $lc - 1)) ],
 	);
 }
 
