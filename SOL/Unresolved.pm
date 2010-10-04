@@ -6,6 +6,13 @@ use 5.010;
 
 sub new {
 	my ($class, $type, $index) = @_;
+
+	# check for index -1 (2**32 - 1 when read as unsigned from SOL).
+	# it simply means there's no object here
+	if ($index == 2**32 - 1) {
+		return undef;
+	}
+
 	bless({ type => $type, index => $index }, $class);
 }
 
