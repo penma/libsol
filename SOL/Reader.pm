@@ -107,7 +107,6 @@ sub load {
 		if (blessed($_) and $_->isa("SOL::Unresolved")) {
 			$_ = $_->resolve($self);
 		}
-		$_;
 	} ALL, $self;
 
 	# delete all superfluous lists (all these elements are referenced through
