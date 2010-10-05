@@ -126,6 +126,9 @@ sub load {
 		$body->unwrap();
 	}
 
+	# delete other unneeded fields
+	delete($self->{fh});
+
 	$self;
 }
 
