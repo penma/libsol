@@ -103,11 +103,37 @@ sub load {
 
 	$self->{index} = SOL::Index->from_sol($self, $counts{index});
 
+	# resolve references
 	rmap_to {
 		if (blessed($_) and $_->isa("SOL::Unresolved")) {
 			$_ = $_->resolve($self);
 		}
 	} ALL, $self;
+
+	# flatten the BSP structure
+	foreach my $body (@{$self->{body}}) {
+		$body->unwrap();
+	}
+
+	# convert paths to path names.
+	# this is about the only thing in SOL that would be insane with references.
+	# TODO this could be written more nicely if Data::Rmap treated cyclic
+	# references like Data::Walk
+	my $work_path;
+	$work_path = sub {
+		my ($path) = @_;
+		return undef if (!defined($path));
+		if (my ($r) = grep { $self->{_path}->{$_} == $path } keys(%{$self->{_path}})) {
+			return $r;
+		}
+		my $id = "path" . scalar(keys(%{$self->{_path}}));
+		$self->{_path}->{$id} = $path;
+		($path->{next_path}) = $work_path->($path->{next_path});
+		return $id;
+	};
+	foreach my $ref (@{$self->{body}}, @{$self->{switch}}) {
+		($ref->{path}) = $work_path->($ref->{path});
+	}
 
 	# delete all superfluous lists (all these elements are referenced through
 	# a s_body)
@@ -120,11 +146,10 @@ sub load {
 	delete($self->{lump});
 	delete($self->{node});
 	delete($self->{index});
+	delete($self->{path});
 
-	# flatten the BSP structure
-	foreach my $body (@{$self->{body}}) {
-		$body->unwrap();
-	}
+	$self->{path} = $self->{_path};
+	delete($self->{_path});
 
 	# delete other unneeded fields
 	delete($self->{fh});
