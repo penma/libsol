@@ -35,18 +35,18 @@ sub sol_dump {
 
 		if ($ctx->object_isa("SOL::Geometry")) {
 			my ($cm) = ($ctx->container_self() =~ /\[(\d+)\]/);
-			return { hide_keys => [ "sides" ], comment => "geom $cm" };
+			return { hxide_keys => [ "sides" ], comment => "geom $cm" };
 		}
 
 		if ($ctx->object_isa("SOL::Lump")) {
 			my ($cm) = ($ctx->container_self() =~ /\[(\d+)\]/);
-			return { hide_keys => [ "sides", "edges" ], comment => "lump $cm, vertices only" };
+			return { hxide_keys => [ "sides", "edges" ], comment => "lump $cm, vertices only" };
 		}
 
 		if ($ctx->object_isa("SOL::Body")) {
 			my ($cm) = ($ctx->container_self() =~ /\[(\d+)\]/);
 			return {
-				hide_keys => [ "geometries", "lumps" ],
+				hxide_keys => [ "geometries", "lumps" ],
 				comment => "body $cm - "
 				. scalar(@{$obj->{geometries} // []}) . " geometries and "
 				. scalar(@{$obj->{lumps} // []}) . " lumps hidden",
