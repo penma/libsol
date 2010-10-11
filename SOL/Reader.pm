@@ -62,7 +62,6 @@ sub load {
 	my $self = bless({ fh => $fh }, $class);
 
 	# read header
-	# TODO verify header
 	($self->{magic}, $self->{version}) = $self->get_index(2);
 
 	if ($self->{magic} != 1280267183) {
