@@ -18,7 +18,7 @@ Readonly my %path_flags => (
 sub new {
 	my ($class, %args) = @_;
 	my $self = {
-		start_position => $args{start_position},
+		position       => $args{position},
 		orientation    => $args{orientation} // [1, 0, 0, 0],
 		travel_time    => $args{travel_time},
 		enable         => $args{enable},
@@ -47,7 +47,7 @@ sub from_sol {
 	}
 
 	$class->new(
-		start_position => [ SOL::Coordinates::neverball_to_radiant(@p) ],
+		position       => [ SOL::Coordinates::neverball_to_radiant(@p) ],
 		orientation    => \@e,
 		travel_time    => $t,
 		enable         => $f,
