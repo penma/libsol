@@ -65,6 +65,10 @@ sub load {
 	# TODO verify header
 	($self->{magic}, $self->{version}) = $self->get_index(2);
 
+	if ($self->{magic} != 1280267183) {
+		die("This does not look like a SOL file");
+	}
+
 	# load the index
 	my %counts;
 	for my $field (qw(
