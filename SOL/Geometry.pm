@@ -34,7 +34,10 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_geom storage not implemented yet (must ask parent object about indices for mtrl, texc, side, vert)");
+	$sol->put_index(
+		$self->{material},
+		(map { ($self->{texture_coordinates}->[$_], $self->{sides}->[$_], $self->{vertices}->[$_]) } 0..2),
+	);
 }
 
 1;

@@ -157,7 +157,7 @@ sub load {
 	# delete other unneeded fields
 	delete($self->{fh});
 
-	$self;
+	bless($self, "SOL::File");
 }
 
 1;

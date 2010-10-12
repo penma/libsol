@@ -13,7 +13,7 @@ sub from_sol {
 
 sub to_sol {
 	my ($self, $sol) = @_;
-	die("s_indx serialization not implemented");
+	$sol->put_index(@{$self});
 }
 
 1;

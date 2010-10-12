@@ -35,7 +35,12 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_body storage not implemented yet (must ask parent object about indxv values+indices for node,path,lump,geom)");
+	$sol->put_index(
+		$self->{path},
+		$self->{node} // -1,
+		0, 0,
+		@{$self->{geometries}},
+	);
 }
 
 sub unwrap {
@@ -56,8 +61,6 @@ sub unwrap {
 
 	# remove now useless things
 	delete($self->{node});
-	delete($self->{lumps});
-	delete($self->{geometries});
 
 	# store new flat lists of collected items
 	$self->{lumps}      = \@lumps;

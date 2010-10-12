@@ -63,7 +63,14 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_bill storage not implemented yet (must ask parent object about stuff)");
+	$sol->put_index(SOL::Flags::encode($self->{flags}, \%bill_flags));
+	$sol->put_index($self->{material});
+	$sol->put_float(
+		$self->{repeat_time}, $self->{distance},
+		@{$self->{width}}, @{$self->{height}},
+		@{$self->{rotate_x}}, @{$self->{rotate_z}}, @{$self->{rotate_z}},
+		@{$self->{p}},
+	);
 }
 
 1;

@@ -60,7 +60,13 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_path storage not implemented yet (must ask parent object about stuff)");
+	$sol->put_float(SOL::Coordinates::radiant_to_neverball(@{$self->{position}}), $self->{travel_time});
+	$sol->put_index($self->{next_path} // -1);
+	$sol->put_index($self->{enable}, $self->{smooth});
+	$sol->put_index(SOL::Flags::encode($self->{flags}, \%path_flags));
+	if ("oriented" ~~ $self->{flags}) {
+		$sol->put_float(@{$self->{orientation}});
+	}
 }
 
 1;

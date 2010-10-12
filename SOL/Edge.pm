@@ -21,8 +21,7 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_edge storage not implemented yet (must ask parent object about index for vertices)");
-	# $sol->put_index($i, $j);
+	$sol->put_index(@{$self});
 }
 
 1;

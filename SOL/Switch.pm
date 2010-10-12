@@ -41,7 +41,10 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_swch storage not implemented yet (must ask parent object about index for path)");
+	$sol->put_float(SOL::Coordinates::radiant_to_neverball(@{$self->{position}}), $self->{radius});
+	$sol->put_index($self->{path} // -1);
+	$sol->put_float($self->{timer}, $self->{timer});
+	$sol->put_index($self->{state}, $self->{state}, $self->{invisible});
 }
 
 1;

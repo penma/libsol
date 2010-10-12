@@ -33,7 +33,11 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_node storage not implemented yet (must ask parent object about indxv values+indices for side,nodei/j,lumps)");
+	$sol->put_index(
+		$self->{side},
+		$self->{node_i}, $self->{node_j},
+		$self->{lumps}->[0] // 0, scalar @{$self->{lumps}}, # FIXME
+	);
 }
 
 1;

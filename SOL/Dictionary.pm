@@ -3,6 +3,8 @@ package SOL::Dictionary;
 use strict;
 use warnings;
 
+use List::Util qw(sum);
+
 sub from_sol {
 	my ($class, $sol, $textlen, $dictlen) = @_;
 
@@ -22,9 +24,22 @@ sub from_sol {
 	bless($self, $class);
 }
 
+sub sol_count {
+	my ($self) = @_;
+	my $textlen = sum map { length($_) + 1 } %{$self};
+	return ($textlen, scalar keys %{$self});
+}
+
 sub to_sol {
 	my ($self, $sol) = @_;
-	die("s_dict serialization not implemented");
+	my $av_text = "";
+	my @dict;
+	foreach my $key (keys %{$self}) {
+		push(@dict, length($av_text), length($av_text) + length($key) + 1);
+		$av_text .= pack("(Z*)*", $key, $self->{$key});
+	}
+	$sol->put_raw($av_text);
+	$sol->put_index(@dict);
 }
 
 1;

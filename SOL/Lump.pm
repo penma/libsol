@@ -42,7 +42,13 @@ sub from_sol {
 sub to_sol {
 	my ($self, $sol) = @_;
 
-	die("s_lump storage not implemented yet (must ask parent object about indxv values+indices for vert,edge,geom,side)");
+	$sol->put_index(SOL::Flags::encode($self->{flags}, \%lump_flags));
+	$sol->put_index(
+		@{$self->{vertices}},
+		@{$self->{edges}},
+		0, 0,
+		@{$self->{sides}},
+	);
 }
 
 1;
