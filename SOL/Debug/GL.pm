@@ -76,7 +76,8 @@ sub activate_mtrl {
 			}
 		}
 		if (!exists($textures{$mat->{texture}})) {
-			die("Couldn't find texture \"$mat->{texture}\" in datadir \"$datadir\"");
+			warn("Couldn't find texture \"$mat->{texture}\" in datadir \"$datadir\" - replacing with \"invisible\"");
+			$textures{$mat->{texture}} = SOL::Debug::GL::Texture::from_file("$datadir/mtrl/invisible.png");
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, $textures{$mat->{texture}});
