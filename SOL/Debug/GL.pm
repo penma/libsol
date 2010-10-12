@@ -80,6 +80,11 @@ sub activate_mtrl {
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, $textures{$mat->{texture}});
+	glMaterialfv_p(GL_FRONT_AND_BACK, GL_AMBIENT , @{$mat->{ambient}});
+	glMaterialfv_p(GL_FRONT_AND_BACK, GL_DIFFUSE , @{$mat->{diffuse}});
+	glMaterialfv_p(GL_FRONT_AND_BACK, GL_SPECULAR, @{$mat->{specular}});
+	glMaterialfv_p(GL_FRONT_AND_BACK, GL_EMISSION, @{$mat->{emission}});
+	glMaterialf   (GL_FRONT_AND_BACK, GL_SHININESS,  $mat->{specular_exponent});
 }
 
 #
@@ -89,7 +94,9 @@ sub draw_geom {
 	activate_mtrl($geom->{material});
 	glBegin(GL_TRIANGLES);
 	for my $vn (0..2) {
-		glTexCoord2f(@{$geom->{texture_coordinates}->[$vn]});
+		glNormal3f  (@{$geom->{sides}->[$vn]->{normal}});
+#		glTexCoord2f(@{$geom->{texture_coordinates}->[$vn]});
+		glTexCoord2f($geom->{texture_coordinates}->[$vn]->[0], -$geom->{texture_coordinates}->[$vn]->[1]);
 		glVertex3f  (@{$geom->{vertices}->[$vn]});
 	}
 	glEnd();
@@ -139,15 +146,29 @@ sub draw {
 		0, 0, 1,
 	);
 
+	glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		glLightfv_p(GL_LIGHT0, GL_POSITION, -8, -8, 32, 0);
+		glLightfv_p(GL_LIGHT0, GL_DIFFUSE , 1., .8, .8, 1);
+		glLightfv_p(GL_LIGHT0, GL_SPECULAR, 1., .8, .8, 1);
+		glEnable(GL_LIGHT1);
+		glLightfv_p(GL_LIGHT1, GL_POSITION, +8, +8, 32, 0);
+		glLightfv_p(GL_LIGHT1, GL_DIFFUSE , .8, 1., .8, 1);
+		glLightfv_p(GL_LIGHT1, GL_SPECULAR, .8, 1., .8, 1);
+
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glColor3f(1,1,1);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glCallList($display_list);
 
 	# render coordinate axes
+	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	glColor3f(1, 0, 0); glBegin(GL_LINES); glVertex3f(0, 0, 0); glVertex3f(1, 0, 0); glEnd();
 	glColor3f(0, 1, 0); glBegin(GL_LINES); glVertex3f(0, 0, 0); glVertex3f(0, 1, 0); glEnd();
 	glColor3f(0, 0, 1); glBegin(GL_LINES); glVertex3f(0, 0, 0); glVertex3f(0, 0, 1); glEnd();
