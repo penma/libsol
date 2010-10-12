@@ -5,6 +5,7 @@ use warnings;
 use 5.010;
 
 use Readonly;
+use Math::Trig;
 
 use OpenGL qw(:all);
 use Time::HiRes qw(sleep time);
@@ -15,12 +16,26 @@ use SOL::Debug::GL::Texture;
 my $sol;
 my $display_list;
 
+# camera
+my @cam_eye = (0, 0, 0);
+my @cam_dir = (0, 1, 0);
+my $cam_mode = "move";
+my $cam_fov = 50;
+my $cam_clip_far = 50;
+
 # GLUT event handlers
+
+Readonly my $cam_speed => 1/8;   # move speed
+Readonly my $cam_aspeed => 1/32; # look speed
+Readonly my $cam_fspeed => 1;    # fast speed
+
+my ($win_x, $win_y) = (800, 450);
 
 sub resize {
 	my ($x, $y) = @_;
 	glViewport(0, 0, $x, $y);
-	update_vp($x, $y);
+	($win_x, $win_y) = ($x, $y);
+	update_vp();
 	draw();
 	glFlush();
 	glutSwapBuffers();
@@ -33,12 +48,86 @@ sub idle {
 	sleep(1/50);
 }
 
+sub keyboard {
+	my ($key, $x, $y) = @_;
+	my $c = chr($key);
+
+	if ($c eq "\e") {
+		exit();
+	} elsif ($c eq " ") {
+		$cam_mode = ($cam_mode eq "look" ? "move" : "look");
+	} elsif ($c eq "+") {
+		$cam_fov += 5;
+		update_vp();
+	} elsif ($c eq "-") {
+		$cam_fov -= 5;
+		update_vp();
+	} elsif ($c eq "(") {
+		$cam_clip_far -= 5;
+		update_vp();
+	} elsif ($c eq ")") {
+		$cam_clip_far += 5;
+		update_vp();
+	}
+}
+
+sub special {
+	my ($key, $x, $y) = @_;
+
+	if ($cam_mode eq "look") {
+		my $a_lr = atan2($cam_dir[1], $cam_dir[0]);
+		my $a_ud = acos($cam_dir[2]);
+
+		if ($key == GLUT_KEY_UP) {
+			$a_ud -= $cam_aspeed;
+		} elsif ($key == GLUT_KEY_DOWN) {
+			$a_ud += $cam_aspeed;
+		} elsif ($key == GLUT_KEY_RIGHT) {
+			$a_lr -= $cam_aspeed;
+		} elsif ($key == GLUT_KEY_LEFT) {
+			$a_lr += $cam_aspeed;
+		}
+
+		@cam_dir = (
+			sin($a_ud) * cos($a_lr),
+			sin($a_ud) * sin($a_lr),
+			cos($a_ud)
+		);
+	} elsif ($cam_mode eq "move") {
+		if ($key == GLUT_KEY_UP) {
+			$cam_eye[$_] += $cam_speed * $cam_dir[$_] for (0..2);
+		} elsif ($key == GLUT_KEY_DOWN) {
+			$cam_eye[$_] -= $cam_speed * $cam_dir[$_] for (0..2);
+		} elsif ($key == GLUT_KEY_PAGE_UP) {
+			$cam_eye[$_] += $cam_fspeed * $cam_dir[$_] for (0..2);
+		} elsif ($key == GLUT_KEY_PAGE_DOWN) {
+			$cam_eye[$_] -= $cam_fspeed * $cam_dir[$_] for (0..2);
+		} elsif ($key == GLUT_KEY_LEFT or $key == GLUT_KEY_RIGHT) {
+			my @v;
+			if ($key == GLUT_KEY_LEFT) {
+				$v[0] = -$cam_dir[1];
+				$v[1] = +$cam_dir[0];
+			} else {
+				$v[0] = +$cam_dir[1];
+				$v[1] = -$cam_dir[0];
+			}
+			my $l = sqrt($v[0] ** 2 + $v[1] ** 2);
+			$v[0] /= $l;
+			$v[1] /= $l;
+			$cam_eye[0] += $v[0] * $cam_speed;
+			$cam_eye[1] += $v[1] * $cam_speed;
+		}
+	}
+}
+
 sub init_gl {
 	glutInit();
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowSize(800, 450);
+	glutInitWindowSize($win_x, $win_y);
 	glutCreateWindow("libSOL Debug Window");
 
+	glutKeyboardFunc  (\&keyboard);
+	glutSpecialFunc   (\&special);
 	glutReshapeFunc   (\&resize);
 	glutIdleFunc      (\&idle);
 	glutDisplayFunc   (\&draw);
@@ -48,14 +137,13 @@ sub init_vp {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glColor3f(1.0, 1.0, 1.0);
 
-	update_vp(800, 450);
+	update_vp();
 }
 
 sub update_vp {
-	my ($x, $y) = @_;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50, $x / $y, 1, 50);
+	gluPerspective($cam_fov, $win_x / $win_y, 1, $cam_clip_far);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -132,18 +220,10 @@ sub init_dl {
 sub draw {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	# have a rotating camera.
-	my @cam_obj = (0, 0, 0);
-	if (@{$sol->{goal}}) {
-		@cam_obj = @{$sol->{goal}->[0]->{position}};
-	}
-
 	glLoadIdentity();
 	gluLookAt(
-		$cam_obj[0] + (15 + 2 * sin(time() - $^T)) * cos(time() - $^T),
-		$cam_obj[1] + (15 + 2 * sin(time() - $^T)) * sin(time() - $^T),
-		$cam_obj[2] + 4 + 3 * sin(time() - $^T),
-		@cam_obj,
+		@cam_eye,
+		$cam_eye[0] + $cam_dir[0], $cam_eye[1] + $cam_dir[1], $cam_eye[2] + $cam_dir[2],
 		0, 0, 1,
 	);
 
