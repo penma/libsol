@@ -15,7 +15,6 @@ sub new {
 	my $self = {
 		path       => $args{path},
 		node       => $args{node},
-		lumps      => $args{lumps}      // [],
 		geometries => $args{geometries} // [],
 	};
 	bless($self, $class);
@@ -29,7 +28,6 @@ sub from_sol {
 	$class->new(
 		path       => SOL::Unresolved->new("path", $pi),
 		node       => SOL::Unresolved->new("node", $ni),
-		lumps      => SOL::Unresolved->new("lump"    , [ $l0 .. ($l0 + $lc - 1) ]),
 		geometries => SOL::Unresolved->new("geometry", [ $g0 .. ($g0 + $gc - 1) ]),
 	);
 }

@@ -43,7 +43,7 @@ sub from_sol {
 
 	my @e = (1, 0, 0, 0);
 	if ("oriented" ~~ $fl) {
-		@e = $sol->get_float(4);
+		@e = $sol->get_float(4); # XXX convert coords?
 	}
 
 	$class->new(
