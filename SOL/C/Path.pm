@@ -31,7 +31,7 @@ sub from_sol {
 
 	my @p = $reader->get_float(3);
 	my $t = $reader->get_float(1);
-	my ($pi, $f, $s) = $sol->get_index(3);
+	my ($pi, $f, $s) = $reader->get_index(3);
 
 	my $fl = [];
 	if ($reader->sol_version() >= $sol_version_pathflags) {
@@ -51,7 +51,8 @@ sub from_sol {
 		smooth         => $s,
 		flags          => $fl,
 		next_path      => ($pi >= 0 ? $pi : undef),
-);
+	);
+}
 
 sub to_sol {
 	my ($self, $writer) = @_;
