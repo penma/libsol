@@ -43,7 +43,6 @@ sub from_sol {
 	my @rz = $reader->get_float(3);
 	my @p  = $reader->get_float(3);
 
-	# XXX figure out if and how these coordinates should be transformed.. leaving asis for now
 	$class->new(
 		flags       => SOL::Util::Flags::decode($fl, \%bill_flags),
 		material    => $mi,
@@ -115,7 +114,7 @@ sub rotate_z {
 	my ($self) = @_;
 	@{$self->{rotate_z}};
 }
-i
+
 sub p {
 	my ($self) = @_;
 	@{$self->{p}};
