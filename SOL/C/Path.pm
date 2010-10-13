@@ -58,7 +58,7 @@ sub to_sol {
 	my ($self, $writer) = @_;
 
 	$writer->put_float(@{$self->{position}}, $self->{travel_time});
-	$writer->put_index(defined($self->{next_path}) and $self->{next_path} >= 0 ? $self->{next_path} : -1);
+	$writer->put_index((defined($self->{next_path}) and $self->{next_path} >= 0) ? $self->{next_path} : -1);
 	$writer->put_index($self->{enable}, $self->{smooth});
 	$writer->put_index(SOL::Util::Flags::encode($self->{flags}, \%path_flags));
 	if ("oriented" ~~ $self->{flags}) {

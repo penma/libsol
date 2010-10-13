@@ -43,7 +43,7 @@ sub _x0xc_to_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 
-	$writer->put_index(defined($self->{path}) and $self->{path} >= 0 ? $self->{path} : -1);
+	$writer->put_index((defined($self->{path}) and $self->{path} >= 0) ? $self->{path} : -1);
 	$writer->put_index($self->{node});
 	$writer->put_index(
 		_x0xc_to_sol($self->{    lump_first}, $self->{    lump_count}),
