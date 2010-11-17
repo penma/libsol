@@ -66,7 +66,7 @@ sub sol_version {
 	$self->{version};
 }
 
-# stuff..?
+# (de)serialization
 
 sub from_sol_fh {
 	my ($class, $fh) = @_;
@@ -185,6 +185,20 @@ sub to_sol_fh {
 		$self->{dictionary}->sol_count(),
 		scalar @{$self->{index}},
 	);
+}
+
+# index management
+
+sub fetch_object {
+	my ($self, $type, $idx) = @_;
+	return $self->{$type}->[$idx];
+}
+
+sub store_object {
+	my ($self, $type, $obj) = @_;
+
+	push(@{$self->{$type}}, $obj);
+	return scalar(@{$self->{$type}}) - 1;
 }
 
 1;

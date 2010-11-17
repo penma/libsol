@@ -2,23 +2,38 @@ package SOL::TextureCoordinate;
 
 use strict;
 use warnings;
-use 5.010;
+
+use SOL::C::TextureCoordinate;
 
 sub new {
-	my ($class, $u, $v) = @_;
-	bless([ $u, $v ], $class);
+	my ($class, %args) = @_;
+	bless([ @args{qw(u v)} ], $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	$class->new($sol->get_float(2));
+sub from_c {
+	my ($class, $file, $cobj) = @_;
+	$class->new(
+		u => $cobj->u,
+		v => $cobj->v
+	);
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
+	$file->store_object("texture_coordinate", SOL::C::TextureCoordinate->new(
+		u => $self->[0],
+		v => $self->[1]
+	));
+}
 
-	$sol->put_float(@{$self});
+sub u {
+	my ($self) = @_;
+	$self->[0];
+}
+
+sub v {
+	my ($self) = @_;
+	$self->[1];
 }
 
 1;
@@ -27,9 +42,16 @@ __END__
 
 =head1 NAME
 
-SOL::TextureCoordinate - s_texc
+SOL::C::TextureCoordinate - s_texc
 
 =head1 SYNOPSIS
 
+ my $t = SOL::C::TextureCoordinate->from_sol($reader);
+ glTexCoord2f($t->u, $t->v);
+
+ my $t = SOL::C::TextureCoordinate->new(u => 0.0, v => 1.0);
+ $t->to_sol($writer);
+
 =head1 DESCRIPTION
 
+A SOL::C::TextureCoordinate is the exact representation of an s_texc structure.

@@ -2,25 +2,46 @@ package SOL::Vertex;
 
 use strict;
 use warnings;
-use 5.010;
 
-use SOL::Coordinates;
+use SOL::C::Vertex;
+use SOL::Util::Coordinates;
 
 sub new {
-	my ($class, $x, $y, $z) = @_;
-	bless([ $x, $y, $z], $class);
+	my ($class, %args) = @_;
+	bless([ @args{qw(x y z)} ], $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	$class->new(SOL::Coordinates::neverball_to_radiant($sol->get_float(3)));
+sub from_c {
+	my ($class, $reader, $cobj) = @_;
+	$class->new(SOL::Util::Coordinates::neverball_to_radiant(
+		x => $cobj->x,
+		y => $cobj->y,
+		z => $cobj->z
+	));
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
+	$file->store_object("vertex", SOL::C::Vertex->new(SOL::Util::Coordinates::radiant_to_neverball(
+		x => $self->[0],
+		y => $self->[1],
+		z => $self->[2]
+	)));
+}
 
-	$sol->put_float(SOL::Coordinates::radiant_to_neverball(@{$self}));
+sub x {
+	my ($self) = @_;
+	$self->[0];
+}
+
+sub y {
+	my ($self) = @_;
+	$self->[1];
+}
+
+sub z {
+	my ($self) = @_;
+	$self->[2];
 }
 
 1;
@@ -33,9 +54,13 @@ SOL::Vertex - vertex
 
 =head1 SYNOPSIS
 
+ my $v = SOL::C::Vertex->from_sol($reader);
+ my @nb_pos = ($v->x, $v->y, $v->z);
+
+ my $v = SOL::C::Vertex->new(x => 2, y => 0.5, z => 2);
+ $v->to_sol($writer);
+
 =head1 DESCRIPTION
 
-This class uses the coordinate system of Radiant, not that of Neverball. In
-Neverball, the Y and Z axis are swapped, and the Radiant-Y axis is inverted.
-Quoting rlk, "if Radiant and Neverball disagree, then Radiant is correct".
-
+A SOL::C::Vertex is the exact representation of an s_vert structure. Its
+coordinates are returned in the Neverball coordinate system.

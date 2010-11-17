@@ -2,26 +2,38 @@ package SOL::Edge;
 
 use strict;
 use warnings;
-use 5.010;
 
-use SOL::Unresolved;
+use SOL::C::Edge;
 
 sub new {
-	my ($class, $v1, $v2) = @_;
-	bless([ $v1, $v2 ], $class);
+	my ($class, %args) = @_;
+	bless([ $args{from}, $args{to} ], $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	my ($i, $j) = $sol->get_index(2);
-	$class->new(SOL::Unresolved->new("vertex", $i) => SOL::Unresolved->new("vertex", $j));
+sub from_c {
+	my ($class, $file, $cobj) = @_;
+	$class->new(
+		from => $file->vertex($cobj->vi),
+		to   => $file->vertex($cobj->vj)
+	);
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
+	$file->store_object("edge", SOL::C::Edge->new(
+		vi => $self->[0]->to_c($file),
+		vj => $self->[1]->to_c($file)
+	));
+}
 
-	$sol->put_index(@{$self});
+sub from {
+	my ($self) = @_;
+	$self->[0];
+}
+
+sub to {
+	my ($self) = @_;
+	$self->[1];
 }
 
 1;
@@ -30,9 +42,18 @@ __END__
 
 =head1 NAME
 
-SOL::Edge - s_edge
+SOL::C::Edge - s_edge
 
 =head1 SYNOPSIS
 
+ my $e = SOL::C::Edge->from_sol($reader);
+ my $vi = $vertices[$e->vi];
+
+ my $e = SOL::C::Edge->new(vi => 0, vj => 1);
+ $e->to_sol($writer);
+
 =head1 DESCRIPTION
 
+A SOL::C::Edge is the exact representation of an s_edge structure. It
+connects two vertices B<vi> and B<vj> which are identified by their
+index in the SOL file.
