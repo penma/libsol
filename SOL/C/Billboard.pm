@@ -3,6 +3,22 @@ package SOL::C::Billboard;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		flags       => "flags",
+		material    => "material",
+		repeat_time => "repeat_time",
+		distance    => "distance",
+		width       => "width",
+		height      => "height",
+		rotate_x    => "rotate_x",
+		rotate_y    => "rotate_y",
+		rotate_z    => "rotate_z",
+		p           => "p",
+	},
+	constructor => "new",
+};
+
 use Readonly;
 
 use SOL::Util::Flags;
@@ -13,23 +29,6 @@ Readonly my %bill_flags => (
 	additive => 4,
 	noface   => 8,
 );
-
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		flags       => $args{flags},
-		material    => $args{material},
-		repeat_time => $args{repeat_time},
-		distance    => $args{distance},
-		width       => $args{width},
-		height      => $args{height},
-		rotate_x    => $args{rotate_x},
-		rotate_y    => $args{rotate_y},
-		rotate_z    => $args{rotate_z},
-		p           => $args{p},
-	};
-	bless($self, $class);
-}
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -68,56 +67,6 @@ sub to_sol {
 		@{$self->{rotate_x}}, @{$self->{rotate_z}}, @{$self->{rotate_z}},
 		@{$self->{p}},
 	);
-}
-
-sub flags {
-	my ($self) = @_;
-	@{$self->{flags}};
-}
-
-sub material {
-	my ($self) = @_;
-	$self->{material};
-}
-
-sub repeat_time {
-	my ($self) = @_;
-	$self->{repeat_time};
-}
-
-sub distance {
-	my ($self) = @_;
-	$self->{distance};
-}
-
-sub width {
-	my ($self) = @_;
-	@{$self->{width}};
-}
-
-sub height {
-	my ($self) = @_;
-	@{$self->{height}};
-}
-
-sub rotate_x {
-	my ($self) = @_;
-	@{$self->{rotate_x}};
-}
-
-sub rotate_y {
-	my ($self) = @_;
-	@{$self->{rotate_y}};
-}
-
-sub rotate_z {
-	my ($self) = @_;
-	@{$self->{rotate_z}};
-}
-
-sub p {
-	my ($self) = @_;
-	@{$self->{p}};
 }
 
 1;

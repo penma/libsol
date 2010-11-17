@@ -3,17 +3,16 @@ package SOL::C::Node;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		side           => $args{side},
-		node_fore      => $args{node_fore},
-		node_back      => $args{node_back},
-		lump_first     => $args{lump_first},
-		lump_count     => $args{lump_count},
-	};
-	bless($self, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		side       => "side",
+		node_fore  => "node_fore",
+		node_back  => "node_back",
+		lump_first => "lump_first",
+		lump_count => "lump_count",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -44,31 +43,6 @@ sub to_sol {
 	} else {
 		$writer->put_index(0, 0);
 	}
-}
-
-sub side {
-	my ($self) = @_;
-	$self->{side};
-}
-
-sub node_fore {
-	my ($self) = @_;
-	$self->{node_fore};
-}
-
-sub node_back {
-	my ($self) = @_;
-	$self->{node_back};
-}
-
-sub lump_first {
-	my ($self) = @_;
-	$self->{lump_first};
-}
-
-sub lump_count {
-	my ($self) = @_;
-	$self->{lump_count};
 }
 
 1;

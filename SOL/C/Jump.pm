@@ -3,14 +3,14 @@ package SOL::C::Jump;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	bless({
-		position => $args{position},
-		target   => $args{target},
-		radius   => $args{radius},
-	}, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		position => "position",
+		target   => "target",
+		radius   => "radius",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -28,21 +28,6 @@ sub to_sol {
 		@{$self->{target}},
 		$self->{radius}
 	);
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub target {
-	my ($self) = @_;
-	@{$self->{target}};
-}
-
-sub radius {
-	my ($self) = @_;
-	$self->{radius};
 }
 
 1;

@@ -3,6 +3,21 @@ package SOL::C::Lump;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		flags          => "flags",
+		vertex_first   => "vertex_first",
+		vertex_count   => "vertex_count",
+		edge_first     => "edge_first",
+		edge_count     => "edge_count",
+		geometry_first => "geometry_first",
+		geometry_count => "geometry_count",
+		side_first     => "side_first",
+		side_count     => "side_count",
+	},
+	constructor => "new",
+};
+
 use Readonly;
 
 use SOL::Util::Flags;
@@ -10,22 +25,6 @@ use SOL::Util::Flags;
 Readonly my %lump_flags => (
 	detail => 1,
 );
-
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		flags          => $args{flags},
-		vertex_first   => $args{vertex_first},
-		vertex_count   => $args{vertex_count},
-		edge_first     => $args{edge_first},
-		edge_count     => $args{edge_count},
-		geometry_first => $args{geometry_first},
-		geometry_count => $args{geometry_count},
-		side_first     => $args{side_first},
-		side_count     => $args{side_count},
-	};
-	bless($self, $class);
-}
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -64,51 +63,6 @@ sub to_sol {
 		_x0xc_to_sol($self->{geometry_first}, $self->{geometry_count}),
 		_x0xc_to_sol($self->{    side_first}, $self->{    side_count}),
 	);
-}
-
-sub flags {
-	my ($self) = @_;
-	@{$self->{flags}};
-}
-
-sub vertex_first {
-	my ($self) = @_;
-	$self->{vertex_first};
-}
-
-sub vertex_count {
-	my ($self) = @_;
-	$self->{vertex_count};
-}
-
-sub edge_first {
-	my ($self) = @_;
-	$self->{edge_first};
-}
-
-sub edge_count {
-	my ($self) = @_;
-	$self->{edge_count};
-}
-
-sub geometry_first {
-	my ($self) = @_;
-	$self->{geometry_first};
-}
-
-sub geometry_count {
-	my ($self) = @_;
-	$self->{geometry_count};
-}
-
-sub side_first {
-	my ($self) = @_;
-	$self->{side_first};
-}
-
-sub side_count {
-	my ($self) = @_;
-	$self->{side_count};
 }
 
 1;

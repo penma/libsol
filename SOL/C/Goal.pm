@@ -3,10 +3,13 @@ package SOL::C::Goal;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	bless({ position => $args{position}, radius => $args{radius} }, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		position => "position",
+		radius   => "radius",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -19,16 +22,6 @@ sub from_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 	$writer->put_float(@{$self->{position}}, $self->{radius});
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub radius {
-	my ($self) = @_;
-	$self->{radius};
 }
 
 1;

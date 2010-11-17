@@ -3,6 +3,14 @@ package SOL::C::Vertex;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		x => 0,
+		y => 1,
+		z => 2,
+	},
+};
+
 sub new {
 	my ($class, %args) = @_;
 	bless([ @args{qw(x y z)} ], $class);
@@ -20,21 +28,6 @@ sub from_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 	$writer->put_float(@{$self});
-}
-
-sub x {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub y {
-	my ($self) = @_;
-	$self->[1];
-}
-
-sub z {
-	my ($self) = @_;
-	$self->[2];
 }
 
 1;

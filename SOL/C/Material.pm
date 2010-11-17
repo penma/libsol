@@ -3,6 +3,19 @@ package SOL::C::Material;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		diffuse           => "diffuse",
+		ambient           => "ambient",
+		specular          => "specular",
+		emission          => "emission",
+		specular_exponent => "specular_exponent",
+		flags             => "flags",
+		texture           => "texture",
+	},
+	constructor => "new",
+};
+
 use Readonly;
 
 use SOL::Util::Flags;
@@ -19,20 +32,6 @@ Readonly my %mtrl_flags => (
 	decal       =>  64,
 	two_sided   => 128,
 );
-
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		diffuse           => $args{diffuse},
-		ambient           => $args{ambient},
-		specular          => $args{specular},
-		emission          => $args{emission},
-		specular_exponent => $args{specular_exponent},
-		flags             => $args{flags},
-		texture           => $args{texture},
-	};
-	bless($self, $class);
-}
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -70,38 +69,6 @@ sub to_sol {
 	$writer->put_index(SOL::Util::Flags::encode($self->{flags}, \%mtrl_flags));
 
 	$writer->put_raw(pack("Z$path_max", $self->{texture}));
-}
-
-sub diffuse {
-	my ($self) = @_;
-	@{$self->{diffuse}};
-}
-sub ambient {
-	my ($self) = @_;
-	@{$self->{ambient}};
-}
-sub specular {
-	my ($self) = @_;
-	@{$self->{specular}};
-}
-sub emission {
-	my ($self) = @_;
-	@{$self->{emission}};
-}
-
-sub specular_exponent {
-	my ($self) = @_;
-	$self->{specular_exponent};
-}
-
-sub flags {
-	my ($self) = @_;
-	@{$self->{flags}};
-}
-
-sub texture {
-	my ($self) = @_;
-	$self->{texture};
 }
 
 1;

@@ -3,17 +3,17 @@ package SOL::C::Switch;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	bless({
-		position      => $args{position},
-		radius        => $args{radius},
-		path          => $args{path},
-		timer         => $args{timer},
-		state         => $args{state},
-		invisible     => $args{invisible},
-	}, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		position  => "position",
+		radius    => "radius",
+		path      => "path",
+		timer     => "timer",
+		state     => "state",
+		invisible => "invisible",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -42,36 +42,6 @@ sub to_sol {
 	$writer->put_float(($self->{timer} // 0) x 2);
 	$writer->put_index(($self->{state}) x 2);
 	$writer->put_index($self->{invisible});
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub radius {
-	my ($self) = @_;
-	$self->{radius};
-}
-
-sub path {
-	my ($self) = @_;
-	$self->{path};
-}
-
-sub timer {
-	my ($self) = @_;
-	$self->{timer};
-}
-
-sub state {
-	my ($self) = @_;
-	$self->{state};
-}
-
-sub invisible {
-	my ($self) = @_;
-	$self->{invisible};
 }
 
 1;

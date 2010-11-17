@@ -3,19 +3,19 @@ package SOL::C::Item;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		position => "position",
+		type     => "type",
+		value    => "value",
+	},
+	constructor => "new",
+};
+
 use List::MoreUtils qw(first_index);
 use Readonly;
 
 Readonly my @item_types => (qw(none coin grow shrink));
-
-sub new {
-	my ($class, %args) = @_;
-	bless({
-		position => $args{position},
-		type     => $args{type},
-		value    => $args{value},
-	}, $class);
-}
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -35,21 +35,6 @@ sub to_sol {
 
 	$writer->put_float(@{$self->{position}});
 	$writer->put_index(first_index(sub { $_ eq $self->{type} }, @item_types), $self->{value});
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub type {
-	my ($self) = @_;
-	$self->{type};
-}
-
-sub value {
-	my ($self) = @_;
-	$self->{value};
 }
 
 1;

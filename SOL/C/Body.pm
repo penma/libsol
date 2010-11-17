@@ -3,18 +3,17 @@ package SOL::C::Body;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		path           => $args{path},
-		node           => $args{node},
-		lump_first     => $args{lump_first},
-		lump_count     => $args{lump_count},
-		geometry_first => $args{geometry_first},
-		geometry_count => $args{geometry_count},
-	};
-	bless($self, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		path           => "path",
+		node           => "node",
+		lump_first     => "lump_first",
+		lump_count     => "lump_count",
+		geometry_first => "geometry_first",
+		geometry_count => "geometry_count",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -49,36 +48,6 @@ sub to_sol {
 		_x0xc_to_sol($self->{    lump_first}, $self->{    lump_count}),
 		_x0xc_to_sol($self->{geometry_first}, $self->{geometry_count}),
 	);
-}
-
-sub path {
-	my ($self) = @_;
-	$self->{path};
-}
-
-sub node {
-	my ($self) = @_;
-	$self->{node};
-}
-
-sub lump_first {
-	my ($self) = @_;
-	$self->{lump_first};
-}
-
-sub lump_count {
-	my ($self) = @_;
-	$self->{lump_count};
-}
-
-sub geometry_first {
-	my ($self) = @_;
-	$self->{geometry_first};
-}
-
-sub geometry_count {
-	my ($self) = @_;
-	$self->{geometry_count};
 }
 
 1;

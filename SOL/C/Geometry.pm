@@ -3,16 +3,15 @@ package SOL::C::Geometry;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		material            => $args{material},
-		texture_coordinates => $args{texture_coordinates},
-		sides               => $args{sides},
-		vertices            => $args{vertices},
-	};
-	bless($self, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		material            => "material",
+		texture_coordinates => "texture_coordinates",
+		sides               => "sides",
+		vertices            => "vertices",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -35,26 +34,6 @@ sub to_sol {
 		$self->{material},
 		(map { ($self->{texture_coordinates}->[$_], $self->{sides}->[$_], $self->{vertices}->[$_]) } 0..2),
 	);
-}
-
-sub material {
-	my ($self) = @_;
-	$self->{material};
-}
-
-sub texture_coordinates {
-	my ($self) = @_;
-	@{$self->{texture_coordinates}};
-}
-
-sub sides {
-	my ($self) = @_;
-	@{$self->{sides}};
-}
-
-sub vertices {
-	my ($self) = @_;
-	@{$self->{vertices}};
 }
 
 1;

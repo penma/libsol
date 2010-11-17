@@ -3,13 +3,13 @@ package SOL::C::Viewpoint;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	bless({
-		position => $args{position},
-		target   => $args{target},
-	}, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		position => "position",
+		target   => "target",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -25,16 +25,6 @@ sub to_sol {
 		@{$self->{position}},
 		@{$self->{target}},
 	);
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub target {
-	my ($self) = @_;
-	@{$self->{target}};
 }
 
 1;

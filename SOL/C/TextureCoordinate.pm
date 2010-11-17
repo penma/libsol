@@ -3,6 +3,13 @@ package SOL::C::TextureCoordinate;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		u => 0,
+		v => 1,
+	},
+};
+
 sub new {
 	my ($class, %args) = @_;
 	bless([ @args{qw(u v)} ], $class);
@@ -19,16 +26,6 @@ sub from_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 	$writer->put_float(@{$self});
-}
-
-sub u {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub v {
-	my ($self) = @_;
-	$self->[1];
 }
 
 1;

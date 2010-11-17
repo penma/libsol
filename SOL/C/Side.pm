@@ -3,10 +3,13 @@ package SOL::C::Side;
 use strict;
 use warnings;
 
-sub new {
-	my ($class, %args) = @_;
-	bless({ normal => $args{normal}, distance => $args{distance} }, $class);
-}
+use Class::XSAccessor {
+	accessors => {
+		normal   => "normal",
+		distance => "distance",
+	},
+	constructor => "new",
+};
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -18,16 +21,6 @@ sub from_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 	$writer->put_float(@{$self->{normal}}, $self->{distance});
-}
-
-sub normal {
-	my ($self) = @_;
-	@{$self->{normal}};
-}
-
-sub distance {
-	my ($self) = @_;
-	$self->{distance};
 }
 
 1;

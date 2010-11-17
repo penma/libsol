@@ -3,6 +3,13 @@ package SOL::C::Edge;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		vi => 0,
+		vj => 1,
+	},
+};
+
 sub new {
 	my ($class, %args) = @_;
 	bless([ $args{vi}, $args{vj} ], $class);
@@ -16,16 +23,6 @@ sub from_sol {
 sub to_sol {
 	my ($self, $writer) = @_;
 	$writer->put_index(@{$self});
-}
-
-sub vi {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub vj {
-	my ($self) = @_;
-	$self->[1];
 }
 
 1;
