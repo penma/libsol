@@ -3,6 +3,19 @@ package SOL::C::Path;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		position    => "position",
+		orientation => "orientation",
+		travel_time => "travel_time",
+		enable      => "enable",
+		smooth      => "smooth",
+		flags       => "flags",
+		next_path   => "next_path",
+	},
+	constructor => "new",
+};
+
 use Readonly;
 
 use SOL::Util::Flags;
@@ -12,19 +25,6 @@ Readonly my $sol_version_pathflags => 7;
 Readonly my %path_flags => (
 	oriented => 1,
 );
-
-sub new {
-	my ($class, %args) = @_;
-	bless({
-		position      => $args{position},
-		orientation   => $args{orientation},
-		travel_time   => $args{travel_time},
-		enable        => $args{enable},
-		smooth        => $args{smooth},
-		flags         => $args{flags},
-		next_path     => $args{next_path},
-	}, $class);
-}
 
 sub from_sol {
 	my ($class, $reader) = @_;
@@ -64,41 +64,6 @@ sub to_sol {
 	if ("oriented" ~~ $self->{flags}) {
 		$writer->put_float(@{$self->{orientation}});
 	}
-}
-
-sub position {
-	my ($self) = @_;
-	@{$self->{position}};
-}
-
-sub orientation {
-	my ($self) = @_;
-	@{$self->{orientation}};
-}
-
-sub travel_time {
-	my ($self) = @_;
-	$self->{travel_time};
-}
-
-sub next_path {
-	my ($self) = @_;
-	$self->{next_path};
-}
-
-sub enable {
-	my ($self) = @_;
-	$self->{enable};
-}
-
-sub smooth {
-	my ($self) = @_;
-	$self->{smooth};
-}
-
-sub flags {
-	my ($self) = @_;
-	@{$self->{flags}};
 }
 
 1;
