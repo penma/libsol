@@ -3,13 +3,16 @@ package SOL::Side;
 use strict;
 use warnings;
 
+use Class::XSAccessor {
+	accessors => {
+		normal => "normal",
+		distance => "distance",
+	},
+	constructor => "new",
+};
+
 use SOL::C::Side;
 use SOL::Util::Coordinates;
-
-sub new {
-	my ($class, %args) = @_;
-	bless({ normal => $args{normal}, distance => $args{distance} }, $class);
-}
 
 sub from_c {
 	my ($class, $file, $cobj) = @_;
@@ -25,16 +28,6 @@ sub to_c {
 		normal   => [ SOL::Util::Coordinates::radiant_to_neverball(@{$self->{normal}}) ],
 		distance => $self->{distance}
 	));
-}
-
-sub normal {
-	my ($self) = @_;
-	@{$self->{normal}};
-}
-
-sub distance {
-	my ($self) = @_;
-	$self->{distance};
 }
 
 1;

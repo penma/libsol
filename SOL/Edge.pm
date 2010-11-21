@@ -3,6 +3,13 @@ package SOL::Edge;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		from => 0,
+		to => 1,
+	},
+};
+
 use SOL::C::Edge;
 
 sub new {
@@ -24,16 +31,6 @@ sub to_c {
 		vi => $self->[0]->to_c($file),
 		vj => $self->[1]->to_c($file)
 	));
-}
-
-sub from {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub to {
-	my ($self) = @_;
-	$self->[1];
 }
 
 1;

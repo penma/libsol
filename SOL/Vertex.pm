@@ -3,6 +3,14 @@ package SOL::Vertex;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		x => 0,
+		y => 1,
+		z => 2,
+	},
+};
+
 use SOL::C::Vertex;
 use SOL::Util::Coordinates;
 
@@ -27,21 +35,6 @@ sub to_c {
 		y => $self->[1],
 		z => $self->[2]
 	)));
-}
-
-sub x {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub y {
-	my ($self) = @_;
-	$self->[1];
-}
-
-sub z {
-	my ($self) = @_;
-	$self->[2];
 }
 
 1;

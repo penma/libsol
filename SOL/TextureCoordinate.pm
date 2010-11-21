@@ -3,6 +3,13 @@ package SOL::TextureCoordinate;
 use strict;
 use warnings;
 
+use Class::XSAccessor::Array {
+	accessors => {
+		u => 0,
+		v => 1,
+	},
+};
+
 use SOL::C::TextureCoordinate;
 
 sub new {
@@ -24,16 +31,6 @@ sub to_c {
 		u => $self->[0],
 		v => $self->[1]
 	));
-}
-
-sub u {
-	my ($self) = @_;
-	$self->[0];
-}
-
-sub v {
-	my ($self) = @_;
-	$self->[1];
 }
 
 1;
