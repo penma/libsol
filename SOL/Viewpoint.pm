@@ -1,4 +1,4 @@
-package SOL::Ball;
+package SOL::Viewpoint;
 
 use strict;
 use warnings;
@@ -6,27 +6,27 @@ use warnings;
 use Class::XSAccessor {
 	accessors => {
 		position => "position",
-		radius => "radius",
+		target => "target",
 	},
 	constructor => "new",
 };
 
-use SOL::C::Ball;
+use SOL::C::Viewpoint;
 use SOL::Util::Coordinates;
 
 sub from_c {
 	my ($class, $file, $cobj) = @_;
 	$class->new(
 		position => [ SOL::Util::Coordinates::neverball_to_radiant($cobj->position) ],
-		radius   => $cobj->radius
+		target   => [ SOL::Util::Coordinates::neverball_to_radiant($cobj->target) ],
 	);
 }
 
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("ball", SOL::C::Ball->new(
+	$file->store_object("view", SOL::C::Viewpoint->new(
 		position => [ SOL::Util::Coordinates::radiant_to_neverball(@{$self->{position}}) ],
-		radius   => $self->{radius}
+		target   => [ SOL::Util::Coordinates::radiant_to_neverball(@{$self->{target}}) ],
 	));
 }
 
