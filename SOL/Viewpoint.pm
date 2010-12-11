@@ -17,8 +17,8 @@ use SOL::Util::Coordinates;
 sub from_c {
 	my ($class, $file, $cobj) = @_;
 	$class->new(
-		position => [ SOL::Util::Coordinates::neverball_to_radiant($cobj->position) ],
-		target   => [ SOL::Util::Coordinates::neverball_to_radiant($cobj->target) ],
+		position => [ SOL::Util::Coordinates::neverball_to_radiant(@{$cobj->position}) ],
+		target   => [ SOL::Util::Coordinates::neverball_to_radiant(@{$cobj->target}) ],
 	);
 }
 

@@ -17,7 +17,7 @@ use SOL::Util::Coordinates;
 sub from_c {
 	my ($class, $file, $cobj) = @_;
 	$class->new(
-		normal   => [ SOL::Util::Coordinates::neverball_to_radiant($cobj->normal) ],
+		normal   => [ SOL::Util::Coordinates::neverball_to_radiant(@{$cobj->normal}) ],
 		distance => $cobj->distance
 	);
 }
