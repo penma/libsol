@@ -20,6 +20,7 @@ use SOL::C::Geometry;
 use SOL::Vertex;
 use SOL::Side;
 use SOL::TextureCoordinate;
+use SOL::Material;
 
 sub new {
 	my ($class, %args) = @_;
@@ -40,7 +41,7 @@ sub from_c {
 		vertices            => [ map SOL::Vertex           ->from_c($file, $_), @cv ],
 		sides               => [ map SOL::Side             ->from_c($file, $_), @cs ],
 		texture_coordinates => [ map SOL::TextureCoordinate->from_c($file, $_), @ct ],
-		material            => SOL::Material->from_c($file->fetch_object("material", $cobj->material)),
+		material            => SOL::Material->from_c($file, $file->fetch_object("material", $cobj->material)),
 	);
 }
 

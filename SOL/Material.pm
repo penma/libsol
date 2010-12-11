@@ -2,98 +2,46 @@ package SOL::Material;
 
 use strict;
 use warnings;
-use 5.010;
 
-use IO::File;
-use Readonly;
+use Class::XSAccessor {
+	accessors => {
+		diffuse           => "diffuse",
+		ambient           => "ambient",
+		specular          => "specular",
+		emission          => "emission",
+		specular_exponent => "specular_exponent",
+		flags             => "flags",
+		texture           => "texture",
+	},
+	constructor => "new",
+};
 
-use SOL::Flags;
+use SOL::C::Material;
 
-Readonly my $path_max => 64;
-
-Readonly my %mtrl_flags => (
-	opaque      =>   1,
-	transparent =>   2,
-	reflective  =>   4,
-	environment =>   8,
-	additive    =>  16,
-	clamped     =>  32,
-	decal       =>  64,
-	two_sided   => 128,
-);
-
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		diffuse           => $args{diffuse}  // [1.0, 1.0, 1.0, 1.0],
-		ambient           => $args{ambient}  // [0.2, 0.2, 0.2, 0.2],
-		specular          => $args{specular} // [0.0, 0.0, 0.0, 1.0],
-		emission          => $args{emission} // [0.0, 0.0, 0.0, 1.0],
-		specular_exponent => $args{specular_exponent} // 0,
-		flags             => $args{flags}    // ["opaque"],
-		texture           => $args{texture},
-	};
-	bless($self, $class);
-}
-
-sub from_mtrl {
-	my ($class, $mtrl_name) = @_;
-	my $fh = IO::File->new($mtrl_name, "r") or die("unable to open mtrl file '$mtrl_name': $!");
-
-	my @md = split(/\s+/, $fh->getline());
-	my @ma = split(/\s+/, $fh->getline());
-	my @ms = split(/\s+/, $fh->getline());
-	my @me = split(/\s+/, $fh->getline());
-	my $mh = $fh->getline();
-	my $flags = SOL::Flags::decode($fh->getline(), \%mtrl_flags);
-
+sub from_c {
+	my ($class, $file, $cobj) = @_;
 	$class->new(
-		diffuse           => \@md,
-		ambient           => \@ma,
-		specular          => \@ms,
-		emission          => \@me,
-		specular_exponent => $mh,
-		texture           => $mtrl_name,
-		flags             => $flags,
+		diffuse           => $cobj->diffuse,
+		ambient           => $cobj->ambient,
+		specular          => $cobj->specular,
+		emission          => $cobj->emission,
+		specular_exponent => $cobj->specular_exponent,
+		flags             => $cobj->flags,
+		texture           => $cobj->texture,
 	);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	my @md = $sol->get_float(4);
-	my @ma = $sol->get_float(4);
-	my @ms = $sol->get_float(4);
-	my @me = $sol->get_float(4);
-	my $mh = $sol->get_float(1);
-	my $flags = SOL::Flags::decode($sol->get_index(), \%mtrl_flags);
-	my $texture = unpack("Z*", $sol->get_raw($path_max));
-
-	$class->new(
-		diffuse           => \@md,
-		ambient           => \@ma,
-		specular          => \@ms,
-		emission          => \@me,
-		specular_exponent => $mh,
-		texture           => $texture,
-		flags             => $flags,
-	);
-}
-
-sub to_sol {
-	my ($self, $sol) = @_;
-
-	$sol->put_float(
-		@{$self->{diffuse}},
-		@{$self->{ambient}},
-		@{$self->{specular}},
-		@{$self->{emission}},
-		$self->{specular_exponent},
-	);
-
-	$sol->put_index(SOL::Flags::encode($self->{flags}, \%mtrl_flags));
-
-	$sol->put_raw(pack("Z$path_max", $self->{texture}));
+sub to_c {
+	my ($self, $file) = @_;
+	$file->store_object("material", SOL::C::Material->new(
+		diffuse           => $self->{diffuse},
+		ambient           => $self->{ambient},
+		specular          => $self->{specular},
+		emission          => $self->{emission},
+		specular_exponent => $self->{specular_exponent},
+		flags             => $self->{flags},
+		texture           => $self->{texture},
+	));
 }
 
 1;
@@ -102,10 +50,18 @@ __END__
 
 =head1 NAME
 
-SOL::Material - represents a material
+SOL::C::Side - s_side
 
 =head1 SYNOPSIS
 
+ my $s = SOL::C::Side->from_sol($reader);
+ my @n = $s->normal;
+ my $d = $s->distance;
+
+ my $s = SOL::C::Side->new(normal => [ 0.70, 0.70, 0 ], distance => -5);
+ $s->to_sol($writer);
+
 =head1 DESCRIPTION
 
-
+A SOL::C::Side is the exact representation of an s_side structure. The
+coordinates of the normal vector are in the Neverball coordinate system.
