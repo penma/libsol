@@ -4,40 +4,55 @@ use strict;
 use warnings;
 use 5.010;
 
-use SOL::Unresolved;
+use Class::XSAccessor {
+	accessors => {
+		material => "material",
+	},
+	getters => {
+		vertices => "vertices",
+		sides => "sides",
+		texture_coordinates => "texture_coordinates",
+	},
+};
+
+use SOL::C::Geometry;
+
+use SOL::Vertex;
+use SOL::Side;
+use SOL::TextureCoordinate;
 
 sub new {
 	my ($class, %args) = @_;
-	my $self = {
+	bless({
+		vertices            => $args{vertices} // [],
+		sides               => $args{sides} // [],
+		texture_coordinates => $args{texture_coordinates} // [],
 		material            => $args{material},
-		texture_coordinates => $args{texture_coordinates},
-		sides               => $args{sides},
-		vertices            => $args{vertices},
-	};
-	bless($self, $class);
+	}, $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	my $mi = $sol->get_index(1);
-	my ($ti, $si, $vi, $tj, $sj, $vj, $tk, $sk, $vk) = $sol->get_index(9);
-
+sub from_c {
+	my ($class, $file, $cobj) = @_;
+	my @cv = map $file->fetch_object("vertex",             $_), @{$cobj->vertices};
+	my @cs = map $file->fetch_object("side",               $_), @{$cobj->sides};
+	my @ct = map $file->fetch_object("texture_coordinate", $_), @{$cobj->texture_coordinates};
 	$class->new(
-		material            => SOL::Unresolved->new("material", $mi),
-		texture_coordinates => [ map SOL::Unresolved->new("texture_coordinate", $_), $ti, $tj, $tk ],
-		sides               => [ map SOL::Unresolved->new("side"              , $_), $si, $sj, $sk ],
-		vertices            => [ map SOL::Unresolved->new("vertex"            , $_), $vi, $vj, $vk ],
+		vertices            => [ map SOL::Vertex           ->from_c($file, $_), @cv ],
+		sides               => [ map SOL::Side             ->from_c($file, $_), @cs ],
+		texture_coordinates => [ map SOL::TextureCoordinate->from_c($file, $_), @ct ],
+		material            => SOL::Material->from_c($file->fetch_object("material", $cobj->material)),
 	);
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
 
-	$sol->put_index(
-		$self->{material},
-		(map { ($self->{texture_coordinates}->[$_], $self->{sides}->[$_], $self->{vertices}->[$_]) } 0..2),
-	);
+	$file->store_object("geometry", SOL::C::Geometry->new(
+		vertices            => [ map $_->to_c($file), @{$self->{vertices}} ],
+		sides               => [ map $_->to_c($file), @{$self->{sides}} ],
+		texture_coordinates => [ map $_->to_c($file), @{$self->{texture_coordinates}} ],
+		material            => $self->{material}->to_c($file),
+	));
 }
 
 1;
