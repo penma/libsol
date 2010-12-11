@@ -12,6 +12,8 @@ use Class::XSAccessor::Array {
 
 use SOL::C::Edge;
 
+use SOL::Vertex;
+
 sub new {
 	my ($class, %args) = @_;
 	bless([ $args{from}, $args{to} ], $class);
@@ -20,8 +22,8 @@ sub new {
 sub from_c {
 	my ($class, $file, $cobj) = @_;
 	$class->new(
-		from => $file->vertex($cobj->vi),
-		to   => $file->vertex($cobj->vj)
+		from => SOL::Vertex->from_c($file, $file->fetch_object("vertex", $cobj->vi)),
+		to   => SOL::Vertex->from_c($file, $file->fetch_object("vertex", $cobj->vj))
 	);
 }
 
