@@ -62,18 +62,24 @@ sub from_c {
 	# search geometries in body->lumps and body.
 	# 1. gv[iv[lv[bp->l0..lc]->g0..gc]]
 	if (defined($cobj->lump_first())) {
-		foreach my $lump (map $file->fetch_object("lump", $_), $cobj->lump_first() .. $cobj->lump_first() + $cobj->lump_count() - 1) {
-			next if (!defined($lump->geometry_first()));
+		my ($l0, $lc) = ($cobj->lump_first, $cobj->lump_count);
+
+		foreach my $lump (map $file->fetch_object("lump", $_), $l0 .. $l0 + $lc - 1) {
+			my ($g0, $gc) = ($lump->geometry_first, $lump->geometry_count);
+			next if (!defined($g0));
+
 			push(@geoms, map $file->fetch_object("geometry", $file->fetch_index($_)),
-				$lump->geometry_first() .. $lump->geometry_first() + $lump->geometry_count() - 1
+				$g0 .. $g0 + $gc - 1
 			);
 		}
 	}
 
 	# 2. gv[iv[bp->g0..gc]]
 	if (defined($cobj->geometry_first())) {
+		my ($g0, $gc) = ($cobj->geometry_first, $cobj->geometry_count);
+
 		push(@geoms, map $file->fetch_object("geometry", $file->fetch_index($_)),
-			$cobj->geometry_first() .. $cobj->geometry_first() + $cobj->geometry_count() - 1
+			$g0 .. $g0 + $gc - 1
 		);
 	}
 
