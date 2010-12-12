@@ -27,12 +27,19 @@ sub from_c {
 	);
 }
 
+my %edge_cache;
+
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("edge", SOL::C::Edge->new(
-		vi => $self->[0]->to_c($file),
-		vj => $self->[1]->to_c($file)
-	));
+
+	my ($v0, $v1) = ($self->[0]->to_c($file), $self->[1]->to_c($file));
+	if (!exists($edge_cache{"$v0/$v1"})) {
+		$edge_cache{"$v0/$v1"} = SOL::C::Edge->new(
+			vi => $v0, vj => $v1
+		);
+	}
+
+	$file->store_object("edge", $edge_cache{"$v0/$v1"});
 }
 
 1;

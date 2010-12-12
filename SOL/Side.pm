@@ -22,12 +22,20 @@ sub from_c {
 	);
 }
 
+my %side_cache;
+
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("side", SOL::C::Side->new(
-		normal   => [ SOL::Util::Coordinates::radiant_to_neverball(@{$self->{normal}}) ],
-		distance => $self->{distance}
-	));
+
+	my $cn = "@{$self->{normal}}/$self->{distance}";
+	if (!exists($side_cache{$cn})) {
+		$side_cache{$cn} = SOL::C::Side->new(
+				normal   => [ SOL::Util::Coordinates::radiant_to_neverball(@{$self->{normal}}) ],
+				distance => $self->{distance}
+			);
+	}
+
+	$file->store_object("side", $side_cache{$cn});
 }
 
 1;

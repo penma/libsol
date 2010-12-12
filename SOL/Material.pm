@@ -31,17 +31,31 @@ sub from_c {
 	);
 }
 
+my %mat_cache;
+
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("material", SOL::C::Material->new(
-		diffuse           => $self->{diffuse},
-		ambient           => $self->{ambient},
-		specular          => $self->{specular},
-		emission          => $self->{emission},
-		specular_exponent => $self->{specular_exponent},
-		flags             => $self->{flags},
-		texture           => $self->{texture},
-	));
+
+	my $cn = $self->{texture}
+		. "/@{$self->{diffuse}}"
+		. "/@{$self->{ambient}}"
+		. "/@{$self->{specular}}"
+		. "/@{$self->{emission}}"
+		. "/$self->{specular_exponent}"
+		. "/@{$self->{flags}}";
+	if (!exists($mat_cache{$cn})) {
+		$mat_cache{$cn} = SOL::C::Material->new(
+			diffuse           => $self->{diffuse},
+			ambient           => $self->{ambient},
+			specular          => $self->{specular},
+			emission          => $self->{emission},
+			specular_exponent => $self->{specular_exponent},
+			flags             => $self->{flags},
+			texture           => $self->{texture},
+		);
+	}
+
+	$file->store_object("material", $mat_cache{$cn});
 }
 
 1;

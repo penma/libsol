@@ -28,13 +28,21 @@ sub from_c {
 	));
 }
 
+my %vert_cache;
+
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("vertex", SOL::C::Vertex->new(SOL::Util::Coordinates::radiant_to_neverball(
-		x => $self->[0],
-		y => $self->[1],
-		z => $self->[2]
-	)));
+
+	my $cn = "$self->[0]/$self->[1]/$self->[2]";
+	if (!exists($vert_cache{$cn})) {
+		$vert_cache{$cn} = SOL::C::Vertex->new(SOL::Util::Coordinates::radiant_to_neverball(
+			x => $self->[0],
+			y => $self->[1],
+			z => $self->[2]
+		));
+	}
+
+	$file->store_object("vertex", $vert_cache{$cn});
 }
 
 1;

@@ -25,12 +25,20 @@ sub from_c {
 	);
 }
 
+my %texc_cache;
+
 sub to_c {
 	my ($self, $file) = @_;
-	$file->store_object("texture_coordinate", SOL::C::TextureCoordinate->new(
-		u => $self->[0],
-		v => $self->[1]
-	));
+
+	my $cn = "$self->[0]/$self->[1]";
+	if (!exists($texc_cache{$cn})) {
+		$texc_cache{$cn} = SOL::C::TextureCoordinate->new(
+			u => $self->[0],
+			v => $self->[1]
+		);
+	}
+
+	$file->store_object("texture_coordinate", $texc_cache{$cn});
 }
 
 1;
