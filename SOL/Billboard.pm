@@ -2,75 +2,58 @@ package SOL::Billboard;
 
 use strict;
 use warnings;
-use 5.010;
 
-use Readonly;
+use Class::XSAccessor {
+	accessors => {
+		flags       => "flags",
+		material    => "material",
+		repeat_time => "repeat_time",
+		distance    => "distance",
+		width       => "width",
+		height      => "height",
+		rotate_x    => "rotate_x",
+		rotate_y    => "rotate_y",
+		rotate_z    => "rotate_z",
+		p           => "p",
+	},
+	constructor => "new",
+};
 
-use SOL::Flags;
-use SOL::Unresolved;
+use SOL::C::Billboard;
+use SOL::Util::Coordinates;
 
-Readonly my %bill_flags => (
-	edge     => 1,
-	flat     => 2,
-	additive => 4,
-	noface   => 8,
-);
+use SOL::Material;
 
-sub new {
-	my ($class, %args) = @_;
-	my $self = {
-		flags       => $args{flags},
-		material    => $args{material},
-		repeat_time => $args{repeat_time},
-		distance    => $args{distance},
-		width       => $args{width},
-		height      => $args{height},
-		rotate_x    => $args{rotate_x},
-		rotate_y    => $args{rotate_y},
-		rotate_z    => $args{rotate_z},
-		p           => $args{p},
-	};
-	bless($self, $class);
-}
-
-sub from_sol {
-	my ($class, $sol) = @_;
-
-	my ($fl, $mi) = $sol->get_index(2);
-	my ($t, $d) = $sol->get_float(2);
-	my @w  = $sol->get_float(3);
-	my @h  = $sol->get_float(3);
-	my @rx = $sol->get_float(3);
-	my @ry = $sol->get_float(3);
-	my @rz = $sol->get_float(3);
-	my @p  = $sol->get_float(3);
-
-	# XXX figure out if and how these coordinates should be transformed.. leaving asis for now
+sub from_c {
+	my ($class, $file, $cobj) = @_;
 	$class->new(
-		flags       => SOL::Flags::decode($fl, \%bill_flags),
-		material    => SOL::Unresolved->new("material", $mi),
-		repeat_time => $t,
-		distance    => $d,
-		width       => \@w,
-		height      => \@h,
-		rotate_x    => \@rx,
-		rotate_y    => \@ry,
-		rotate_z    => \@rz,
-		p           => \@p,
+		flags       => $cobj->flags,
+		material    => SOL::Material->from_c($file, $file->fetch_object("material", $cobj->material)),
+		repeat_time => $cobj->repeat_time,
+		distance    => $cobj->distance,
+		width       => $cobj->width,
+		height      => $cobj->height,
+		rotate_x    => $cobj->rotate_x,
+		rotate_y    => $cobj->rotate_y,
+		rotate_z    => $cobj->rotate_z,
+		p           => $cobj->p,
 	);
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
-
-	$sol->put_index(SOL::Flags::encode($self->{flags}, \%bill_flags));
-	$sol->put_index($self->{material});
-	$sol->put_float(
-		$self->{repeat_time}, $self->{distance},
-		@{$self->{width}}, @{$self->{height}},
-		@{$self->{rotate_x}}, @{$self->{rotate_z}}, @{$self->{rotate_z}},
-		@{$self->{p}},
-	);
+sub to_c {
+	my ($self, $file) = @_;
+	$file->store_object("billboard", SOL::C::Billboard->new(
+		flags       => $self->{flags},
+		material    => $self->{material}->to_c($file),
+		repeat_time => $self->{repeat_time},
+		distance    => $self->{distance},
+		width       => $self->{width},
+		height      => $self->{height},
+		rotate_x    => $self->{rotate_x},
+		rotate_y    => $self->{rotate_y},
+		rotate_z    => $self->{rotate_z},
+		p           => $self->{p},
+	));
 }
 
 1;
@@ -79,9 +62,18 @@ __END__
 
 =head1 NAME
 
-SOL::Lump - s_lump
+SOL::C::Side - s_side
 
 =head1 SYNOPSIS
 
+ my $s = SOL::C::Side->from_sol($reader);
+ my @n = $s->normal;
+ my $d = $s->distance;
+
+ my $s = SOL::C::Side->new(normal => [ 0.70, 0.70, 0 ], distance => -5);
+ $s->to_sol($writer);
+
 =head1 DESCRIPTION
 
+A SOL::C::Side is the exact representation of an s_side structure. The
+coordinates of the normal vector are in the Neverball coordinate system.
