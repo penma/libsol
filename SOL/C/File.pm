@@ -23,6 +23,7 @@ use SOL::C::Ball;
 use SOL::C::Viewpoint;
 
 use List::Util qw(sum);
+use List::MoreUtils qw(firstidx);
 
 # SOL file format operations
 
@@ -201,6 +202,18 @@ sub fetch_object {
 
 sub store_object {
 	my ($self, $type, $obj) = @_;
+
+	# don't store the same object twice.
+	# except for lumps, which have to be stored sequentially
+	if ($type ne "lump") {
+		# XXX do this properly and correctly and for other materials
+		if ($type eq "material") {
+			my $i = firstidx { $_->{texture} eq $obj->{texture} } @{$self->{material}};
+			if ($i != -1) {
+				return $i;
+			}
+		}
+	}
 
 	push(@{$self->{$type}}, $obj);
 	return scalar(@{$self->{$type}}) - 1;
