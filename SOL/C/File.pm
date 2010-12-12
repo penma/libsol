@@ -201,4 +201,9 @@ sub store_object {
 	return scalar(@{$self->{$type}}) - 1;
 }
 
+sub fetch_index {
+	my ($self, $idx) = @_;
+	return $self->{index}->[$idx];
+}
+
 1;

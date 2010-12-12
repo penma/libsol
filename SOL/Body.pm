@@ -4,67 +4,95 @@ use strict;
 use warnings;
 use 5.010;
 
-use Data::Rmap qw(:types rmap_to rmap_ref);
 use List::MoreUtils qw(uniq);
-use Scalar::Util qw(blessed);
 
-use SOL::Unresolved;
+use Class::XSAccessor {
+	accessors => {
+		path => "path",
+	},
+	getters => {
+		lumps => "lumps",
+		geometries => "geometries",
+	},
+};
+
+use SOL::C::Body;
+
+use SOL::Geometry;
+use SOL::Lump;
 
 sub new {
 	my ($class, %args) = @_;
-	my $self = {
+	bless({
 		path       => $args{path},
-		node       => $args{node},
+		lumps      => $args{lumps} // [],
 		geometries => $args{geometries} // [],
-	};
-	bless($self, $class);
+	}, $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
+sub _node_lumps {
+	my ($file, $cobj) = @_;
+	my @lumps;
 
-	my ($pi, $ni, $l0, $lc, $g0, $gc) = $sol->get_index(6);
+	if (defined($cobj->lump_first())) {
+		push(@lumps, map $file->fetch_object("lump", $_),
+			$cobj->lump_first() .. $cobj->lump_first() + $cobj->lump_count() - 1
+		);
+	}
+
+	if (defined($cobj->node_fore())) {
+		push(@lumps, _node_lumps($file, $file->fetch_object("node", $cobj->node_fore())));
+	}
+
+	if (defined($cobj->node_back())) {
+		push(@lumps, _node_lumps($file, $file->fetch_object("node", $cobj->node_back())));
+	}
+
+	@lumps;
+}
+
+sub from_c {
+	my ($class, $file, $cobj) = @_;
+	my (@lumps, @geoms);
+
+	# search lumps in nodes.
+	# lv[bp->n*->l0..lc]
+	@lumps = _node_lumps($file, $file->fetch_object("node", $cobj->node));
+
+	# search geometries in body->lumps and body.
+	# 1. gv[iv[lv[bp->l0..lc]->g0..gc]]
+	if (defined($cobj->lump_first())) {
+		foreach my $lump (map $file->fetch_object("lump", $_), $cobj->lump_first() .. $cobj->lump_first() + $cobj->lump_count() - 1) {
+			next if (!defined($lump->geometry_first()));
+			push(@geoms, map $file->fetch_object("geometry", $file->fetch_index($_)),
+				$lump->geometry_first() .. $lump->geometry_first() + $lump->geometry_count() - 1
+			);
+		}
+	}
+
+	# 2. gv[iv[bp->g0..gc]]
+	if (defined($cobj->geometry_first())) {
+		push(@geoms, map $file->fetch_object("geometry", $file->fetch_index($_)),
+			$cobj->geometry_first() .. $cobj->geometry_first() + $cobj->geometry_count() - 1
+		);
+	}
 
 	$class->new(
-		path       => SOL::Unresolved->new("path", $pi),
-		node       => SOL::Unresolved->new("node", $ni),
-		geometries => SOL::Unresolved->new("geometry", [ $g0 .. ($g0 + $gc - 1) ]),
+		path => undef, # XXX
+		lumps      => [ map SOL::Lump    ->from_c($file, $_), uniq @lumps ],
+		geometries => [ map SOL::Geometry->from_c($file, $_), uniq @geoms ],
 	);
 }
 
-sub to_sol {
-	my ($self, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
 
-	$sol->put_index(
-		$self->{path},
-		$self->{node} // -1,
-		0, 0,
-		@{$self->{geometries}},
-	);
-}
-
-sub unwrap {
-	my ($self) = @_;
-
-	# walk the node tree and collect all lumps.
-	my @lumps = uniq(
-		rmap_ref {
-			(blessed($_) and $_->isa("SOL::Lump"))
-			? $_
-			: ()
-		} $self->{node},
-	);
-
-	# walk the body geom list and the lumps and dump all geometry.
-	# remove geom lists from them while iterating over them
-	my @geoms = uniq(@{$self->{geometries}}, map { @{delete $_->{geometries}} } @lumps);
-
-	# remove now useless things
-	delete($self->{node});
-
-	# store new flat lists of collected items
-	$self->{lumps}      = \@lumps;
-	$self->{geometries} = \@geoms;
+	$file->store_object("geometry", SOL::C::Geometry->new(
+		vertices            => [ map $_->to_c($file), @{$self->{vertices}} ],
+		sides               => [ map $_->to_c($file), @{$self->{sides}} ],
+		texture_coordinates => [ map $_->to_c($file), @{$self->{texture_coordinates}} ],
+		material            => $self->{material}->to_c($file),
+	));
 }
 
 1;
@@ -73,7 +101,7 @@ __END__
 
 =head1 NAME
 
-SOL::Lump - s_lump
+SOL::Geometry - s_geom
 
 =head1 SYNOPSIS
 
