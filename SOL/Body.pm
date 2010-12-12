@@ -90,14 +90,37 @@ sub from_c {
 	);
 }
 
+{ # XXX
+
+package SOLDUMMY::Node;
+
+sub to_c {
+	my ($self, $file) = @_;
+	# HAX
+	my @li = map $_->to_c($file), @{$self->{lumps}};
+	$file->store_object("node", SOL::C::Node->new(
+		lump_first => $li[0],
+		lump_count => scalar(@li),
+	));
+}
+
+
+} # /XXX
+
 sub to_c {
 	my ($self, $file) = @_;
 
-	$file->store_object("geometry", SOL::C::Geometry->new(
-		vertices            => [ map $_->to_c($file), @{$self->{vertices}} ],
-		sides               => [ map $_->to_c($file), @{$self->{sides}} ],
-		texture_coordinates => [ map $_->to_c($file), @{$self->{texture_coordinates}} ],
-		material            => $self->{material}->to_c($file),
+	# XXX
+	$self->{node} = bless({ lumps => [ @{$self->{lumps}} ] }, "SOLDUMMY::Node");
+	# /XXX
+
+	my @ig = map $_->to_c($file), @{$self->{geometries}};
+
+	$file->store_object("body", SOL::C::Body->new(
+		path => undef, # XXX
+		node           => $self->{node}->to_c($file),
+		geometry_first => $file->store_index(@ig),
+		geometry_count => scalar(@ig),
 	));
 }
 
