@@ -50,11 +50,17 @@ sub from_c {
 sub to_c {
 	my ($self, $file) = @_;
 
-	$file->store_object("geometry", SOL::C::Geometry->new(
-		vertices            => [ map $_->to_c($file), @{$self->{vertices}} ],
-		sides               => [ map $_->to_c($file), @{$self->{sides}} ],
-		texture_coordinates => [ map $_->to_c($file), @{$self->{texture_coordinates}} ],
-		material            => $self->{material}->to_c($file),
+	my @iv = map $_->to_c($file), @{$self->{vertices}};
+	my @ie = map $_->to_c($file), @{$self->{edges}};
+	my @is = map $_->to_c($file), @{$self->{sides}};
+
+	$file->store_object("lump", SOL::C::Lump->new(
+		vertex_first => $file->store_index(@iv),
+		vertex_count => scalar(@iv),
+		edge_first   => $file->store_index(@ie),
+		edge_count   => scalar(@ie),
+		side_first   => $file->store_index(@is),
+		side_count   => scalar(@is),
 	));
 }
 

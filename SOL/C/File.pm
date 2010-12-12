@@ -206,4 +206,11 @@ sub fetch_index {
 	return $self->{index}->[$idx];
 }
 
+sub store_index {
+	my ($self, @idx) = @_;
+	my $s = scalar(@{$self->{index}});
+	push(@{$self->{index}}, @idx);
+	return $s;
+}
+
 1;
