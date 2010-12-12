@@ -21,6 +21,8 @@ use SOL::C::Body;
 use SOL::Geometry;
 use SOL::Lump;
 
+use SOL::Node;
+
 sub new {
 	my ($class, %args) = @_;
 	bless({
@@ -90,29 +92,11 @@ sub from_c {
 	);
 }
 
-{ # XXX
-
-package SOLDUMMY::Node;
-
-sub to_c {
-	my ($self, $file) = @_;
-	# HAX
-	my @li = map $_->to_c($file), @{$self->{lumps}};
-	$file->store_object("node", SOL::C::Node->new(
-		lump_first => $li[0],
-		lump_count => scalar(@li),
-	));
-}
-
-
-} # /XXX
-
 sub to_c {
 	my ($self, $file) = @_;
 
-	# XXX
-	$self->{node} = bless({ lumps => [ @{$self->{lumps}} ] }, "SOLDUMMY::Node");
-	# /XXX
+	# TODO maybe somewhere else than in to_c ...
+	$self->{node} = SOL::Node->new(lumps => [ @{$self->{lumps}} ]);
 
 	my @ig = map $_->to_c($file), @{$self->{geometries}};
 

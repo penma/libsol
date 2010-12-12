@@ -4,40 +4,39 @@ use strict;
 use warnings;
 use 5.010;
 
-use SOL::Unresolved;
+use SOL::C::Node;
 
 sub new {
 	my ($class, %args) = @_;
-	my $self = {
-		side   => $args{side},
-		node_i => $args{node_i},
-		node_j => $args{node_j},
-		lumps  => $args{lumps} // [],
-	};
-	bless($self, $class);
+	bless({
+		lumps => $args{lumps},
+	}, $class);
 }
 
-sub from_sol {
-	my ($class, $sol) = @_;
+sub to_c {
+	my ($self, $file) = @_;
 
-	my ($si, $ni, $nj, $l0, $lc) = $sol->get_index(5);
+	# store lumps.
+	# note that the lumps have to be stored sequentially in the file.
+	# unlike all other objects, lumps are not resolved through the index
+	# vector.
+	# so we just assume that they are stored sequentially, and, to be
+	# extra safe, validate that this is indeed the case.
+	# at least mapc doesn't seem to ensure this either.
+	my @li = map $_->to_c($file), @{$self->{lumps}};
 
-	$class->new(
-		side   => SOL::Unresolved->new("side", $si),
-		node_i => SOL::Unresolved->new("node", $ni),
-		node_j => SOL::Unresolved->new("node", $nj),
-		lumps  => [ map SOL::Unresolved->new("lump", $_), ($l0 .. ($l0 + $lc - 1)) ],
-	);
-}
+	# die if for some reason the lump indices are not adjacent
+	for my $x (1 .. @li - 1) {
+		if ($li[$x] != $li[$x - 1] + 1) {
+			die("Indices of lumps are not adjacent. This should not happen.");
+		}
+	}
 
-sub to_sol {
-	my ($self, $sol) = @_;
-
-	$sol->put_index(
-		$self->{side},
-		$self->{node_i}, $self->{node_j},
-		$self->{lumps}->[0] // 0, scalar @{$self->{lumps}}, # FIXME
-	);
+	$file->store_object("node", SOL::C::Node->new(
+		# XX
+		lump_first => $li[0],
+		lump_count => scalar(@li),
+	));
 }
 
 1;
@@ -46,7 +45,7 @@ __END__
 
 =head1 NAME
 
-SOL::Lump - s_lump
+SOL::Geometry - s_geom
 
 =head1 SYNOPSIS
 
