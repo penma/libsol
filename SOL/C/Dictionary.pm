@@ -26,7 +26,7 @@ sub from_sol {
 
 sub sol_count {
 	my ($self) = @_;
-	my $textlen = sum map { length($_) + 1 } %{$self};
+	my $textlen = sum 0, map { length($_) + 1 } %{$self};
 	return ($textlen, scalar keys %{$self});
 }
 

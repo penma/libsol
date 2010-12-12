@@ -176,7 +176,7 @@ sub to_sol_fh {
 	my $solid_lumps = 0;
 	my $visib_geoms = 0;
 	my $value_coins = 0;
-	$value_coins = sum map { $_->type eq "coin" ? $_->value : 0 } @{$self->{item}};
+	$value_coins = sum 0, map { $_->type eq "coin" ? $_->value : 0 } @{$self->{item}};
 	printf("%s (%d/%d/\$%d)\n"
 		. "  mtrl  vert  edge  side  texc  geom  lump  path  node  body\n"
 		. "%6d%6d%6d%6d%6d%6d%6d%6d%6d%6d\n"
