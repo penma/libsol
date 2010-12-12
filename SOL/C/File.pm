@@ -148,7 +148,11 @@ sub to_sol_fh {
 		item goal jump switch billboard
 		ball viewpoint index
 	)) {
-		$self->put_index(scalar @{$self->{$field}});
+		if (defined($self->{$field})) {
+			$self->put_index(scalar @{$self->{$field}});
+		} else {
+			$self->put_index(0);
+		}
 	}
 
 	# write objects
@@ -160,6 +164,7 @@ sub to_sol_fh {
 		item goal jump switch billboard
 		ball viewpoint
 	)) {
+		next if (!defined($self->{$field}));
 		for my $elem (@{$self->{$field}}) {
 			$elem->to_sol($self);
 		}
@@ -178,7 +183,7 @@ sub to_sol_fh {
 		. "  item  goal  view  jump  swch  bill  ball  char  dict  indx\n"
 		. "%6d%6d%6d%6d%6d%6d%6d%6d%6d%6d\n",
 		"stdin", $solid_lumps, $visib_geoms, $value_coins,
-		(map { scalar @{$self->{$_}} } qw(
+		(map { scalar @{$self->{$_} // []} } qw(
 			material vertex edge side texture_coordinate
 			geometry lump path node body
 			item goal viewpoint jump switch billboard ball)),
